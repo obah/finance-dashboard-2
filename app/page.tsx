@@ -1,65 +1,49 @@
-import AssetRow from "@/lib/assetRow";
-import { useEffect, useState } from "react";
-import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
-import { Typography } from "@mui/material";
+import FxExhange from "/fxExhange/page";
+import StockExchange from "./components/stockExchange";
+import Grid2 from "@mui/material/Unstable_Grid2";
+import { useState } from "react";
+import { Box, Tab } from "@mui/material";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
 
-export default function Home() {
-  const [amount, setAmount] = useState(1);
-  const [currencyOptions, setCurrencyOptions] = useState([]);
-  const [primaryCurrency, setPrimaryCurrency] = useState("USD");
-  const [secondaryCurrency, setSecondaryCurrency] = useState("AED");
-  const [amountFromPrimary, setAmountFromPrimary] = useState(true);
-  const [rate, setRate] = useState<number | null>();
+function Home() {
+  const [value, setValue] = useState("1");
 
-  const API_KEY: string | undefined = process.env.REACT_APP_FX_API;
-  const CURRENCY_URL: string = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/USD`;
-  const EXCHANGE_URL: string = `https://v6.exchangerate-api.com/v6/${API_KEY}/pair/${primaryCurrency}/${secondaryCurrency}`;
-
-  const formatNum = (num: number): number => {
-    return +num.toFixed(2);
+  const handleChange = (e, newValue) => {
+    setValue(newValue);
   };
 
-  let primaryAmount: number, secondaryAmount: number;
-  if (amountFromPrimary) {
-    primaryAmount = formatNum(+amount);
-    secondaryAmount = formatNum(+amount * rate);
-  } else {
-    secondaryAmount = formatNum(+amount);
-    primaryAmount = formatNum(+amount / rate);
-  }
-
-  useEffect(() => {
-    fetch(CURRENCY_URL)
-      .then((res) => res.json())
-      .then((resJson) => {
-        const currency = Object.keys(resJson.conversion_rates)[1];
-        setCurrencyOptions([...Object.keys(resJson.conversion_rates)]);
-        setPrimaryCurrency(resJson.base_code);
-        setSecondaryCurrency(currency);
-        setRate(resJson.conversion_rates[currency]);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (primaryCurrency != null && secondaryCurrency != null) {
-      fetch(EXCHANGE_URL)
-        .then((res) => res.json())
-        .then((resJson) => setRate(resJson.conversion_rate));
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [primaryCurrency, secondaryCurrency]);
-
-  const handlePrimaryAmountChange = (e) => {
-    setAmount(e.target.value);
-    setAmountFromPrimary(true);
-  };
-
-  const handleSecondaryAmountChange = (e) => {
-    setAmount(e.target.value);
-    setAmountFromPrimary(false);
-  };
-
-  return <main></main>;
+  return (
+    <Grid2 container spacing={2}>
+      <Grid2
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        flexDirection="column"
+        xs={12}
+      >
+        <TabContext value={value}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <TabList
+              onChange={handleChange}
+              aria-label="conversion tool switch"
+              textColor="secondary"
+              indicatorColor="secondary"
+              centered
+            >
+              <Tab label="Forex" value={"1"} />
+              <Tab label="Stocks" value={"2"} />
+            </TabList>
+          </Box>
+          <TabPanel value={"1"} index={0}>
+            <FxExhange />
+          </TabPanel>
+          <TabPanel value={"2"} index={0}>
+            <StockExchange />
+          </TabPanel>
+        </TabContext>
+      </Grid2>
+    </Grid2>
+  );
 }
+
+export default App;

@@ -2,7 +2,7 @@
 
 # Built using TYPESCRIPT, REACT, NEXT.JS, Material UI AND REST APIS
 
-This is very similar to the other Finance Dashboard project, but this is built with nextJs and Typescript
+This is very similar to the other Finance Dashboard project, but this is built with nextJs 13 and Typescript
 
 ## APIS
 
