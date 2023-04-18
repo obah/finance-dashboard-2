@@ -18,7 +18,7 @@ export async function getCurrencyList() {
   return res;
 }
 
-export async function getExhangeRate({
+export async function getExchangeRate({
   primaryCurrency,
   secondaryCurrency,
 }: {
