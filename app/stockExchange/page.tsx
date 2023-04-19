@@ -18,8 +18,17 @@ import {
 } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 import { useEffect, useState } from "react";
+import {
+  getSearchResult,
+  getStockPrice,
+  getStockDetails,
+} from "@/lib/apiCalls";
 
-const ExpandMore = styled((props) => {
+type MuiObject = {
+  expand?: boolean;
+};
+
+const ExpandMore = styled((props: MuiObject) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
 })(({ theme, expand }) => ({
@@ -31,45 +40,52 @@ const ExpandMore = styled((props) => {
 }));
 
 export default function StockEchange() {
-  const [searchResult, setSearchResult] = useState([]);
+  const [searchResult, setSearchResult] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState("");
-  const [selectedStock, setSelectedStock] = useState();
-  const [selectedSymbol, setSelectedSymbol] = useState();
-  const [stockPrice, setStockPrice] = useState();
-  const [stockName, setStockName] = useState();
-  const [stockChange, setStockChange] = useState();
-  const [stockPercentChange, setStockPercentChange] = useState();
-  const [stockOpen, setStockOpen] = useState();
-  const [stockHigh, setStockHigh] = useState();
-  const [stockLow, setStockLow] = useState();
-  const [stockVolume, setStockVolume] = useState();
-  const [stockWkHigh, setStockWkHigh] = useState();
-  const [stockWkLow, setStockWkLow] = useState();
+  const [selectedStock, setSelectedStock] = useState<string | null>("");
+  const [selectedSymbol, setSelectedSymbol] = useState<string>("");
+  const [stockPrice, setStockPrice] = useState<string>("");
+  const [stockName, setStockName] = useState<string>("");
+  const [stockChange, setStockChange] = useState<string>("");
+  const [stockPercentChange, setStockPercentChange] = useState<string>("");
+  const [stockOpen, setStockOpen] = useState<string>("");
+  const [stockHigh, setStockHigh] = useState<string>("");
+  const [stockLow, setStockLow] = useState<string>("");
+  const [stockVolume, setStockVolume] = useState<string>("");
+  const [stockWkHigh, setStockWkHigh] = useState<string>("");
+  const [stockWkLow, setStockWkLow] = useState<string>("");
 
   const [expanded, setExpanded] = useState(false);
 
   //handle search input and get the results
   useEffect(() => {
-    fetch(SEARCH_URL)
-      .then((res) => res.json())
-      .then((resJson) => {
-        let searchResultsArray = [];
-        let searchResults = resJson.data
-          .filter(
-            (value, index, self) =>
-              index ===
-              self.findIndex((_value) => _value.symbol === value.symbol)
-          )
-          .map((results) => `${results.symbol} - ${results.instrument_name}`);
+    getSearchResult({ searchInput }).then((resJson) => {
+      let searchResultsArray: string[] = [];
+      let searchResults: string = resJson.data
+        .filter(
+          (
+            value: StockSearchResData,
+            index: number,
+            self: StockSearchResData[]
+          ): boolean =>
+            index ===
+            self.findIndex(
+              (_value: StockSearchResData) => _value.symbol === value.symbol
+            )
+        )
+        .map(
+          (results: StockSearchResData): string =>
+            `${results.symbol} - ${results.instrument_name}`
+        );
 
-        searchResultsArray.push(searchResults);
-        setSearchResult(...searchResultsArray);
-      });
-  }, [SEARCH_URL]);
+      searchResultsArray.push(searchResults);
+      setSearchResult([...searchResultsArray]);
+    });
+  }, [searchInput]);
 
   //gets symbol from selected search result
   useEffect(() => {
-    let stockText = selectedStock;
+    let stockText = selectedStock as string;
     if (selectedStock) {
       const stringEnd = stockText.indexOf("-") - 1;
       const stockSymbol = stockText.slice(0, stringEnd);
@@ -79,32 +95,34 @@ export default function StockEchange() {
 
   //gets price, logo & other details of selected symbol
   useEffect(() => {
-    fetch(PRICE_URL)
-      .then((res) => res.json())
-      .then((resJson) => {
-        setStockPrice(resJson.price);
-      });
+    getStockPrice({ selectedSymbol }).then((resJson) => {
+      setStockPrice(resJson.price);
+    });
 
-    fetch(DETAILS_URL)
-      .then((res) => res.json())
-      .then((resJson) => {
-        setStockName(resJson.name);
-        setStockChange(resJson.change);
-        setStockPercentChange(resJson.percent_change);
-        setStockOpen(resJson.open);
-        setStockHigh(resJson.high);
-        setStockLow(resJson.low);
-        setStockVolume(resJson.volume);
-        setStockWkHigh(resJson.fifty_two_week.high);
-        setStockWkLow(resJson.fifty_two_week.low);
-      });
-  }, [PRICE_URL, DETAILS_URL]);
+    getStockDetails({ selectedSymbol }).then((resJson) => {
+      setStockName(resJson.name);
+      setStockChange(resJson.change);
+      setStockPercentChange(resJson.percent_change);
+      setStockOpen(resJson.open);
+      setStockHigh(resJson.high);
+      setStockLow(resJson.low);
+      setStockVolume(resJson.volume);
+      setStockWkHigh(resJson.fifty_two_week.high);
+      setStockWkLow(resJson.fifty_two_week.low);
+    });
+  }, [selectedSymbol]);
 
-  const handleSearchInput = (event, newValue) => {
+  const handleSearchInput = (
+    event: React.SyntheticEvent<Element, Event>,
+    newValue: string
+  ) => {
     setSearchInput(newValue);
   };
 
-  const handleSearchSelect = (event, newValue) => {
+  const handleSearchSelect = (
+    event: React.SyntheticEvent<Element, Event>,
+    newValue: string | null
+  ) => {
     setSelectedStock(newValue);
   };
 
@@ -112,7 +130,7 @@ export default function StockEchange() {
     setExpanded(!expanded);
   };
 
-  const formatNum = (num) => {
+  const formatNum = (num: number) => {
     return num.toFixed(2);
   };
 
@@ -164,7 +182,7 @@ export default function StockEchange() {
                     ${formattedPrice}
                   </Typography>
                   {/*============================= Make color based on green or red ===========================================*/}
-                  {stockChange > 0 ? (
+                  {+stockChange > 0 ? (
                     <Typography
                       variant="body1"
                       gutterBottom

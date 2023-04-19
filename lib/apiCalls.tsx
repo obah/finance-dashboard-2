@@ -65,5 +65,4 @@ export async function getStockDetails({
   const res = await getResponse(DETAILS_URL, "Stock Details");
   return res;
 }
-
 //TODO export the values as named exports or see if they can work as normal default export

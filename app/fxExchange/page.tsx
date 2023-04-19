@@ -13,23 +13,21 @@ export default function FxExhange() {
   const [rate, setRate] = useState<string>("");
 
   useEffect(() => {
-    getCurrencyList()
-      .then((res) => res.json())
-      .then((resJson) => {
-        const currency = Object.keys(resJson.conversion_rates)[1];
-        setCurrencyOptions([...Object.keys(resJson.conversion_rates)]);
-        setPrimaryCurrency(resJson.base_code);
-        setSecondaryCurrency(currency);
-        setRate(resJson.conversion_rates[currency]);
-      });
+    getCurrencyList().then((resJson) => {
+      const currency = Object.keys(resJson.conversion_rates)[1];
+      setCurrencyOptions([...Object.keys(resJson.conversion_rates)]);
+      setPrimaryCurrency(resJson.base_code);
+      setSecondaryCurrency(currency);
+      setRate(resJson.conversion_rates[currency]);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (primaryCurrency != null && secondaryCurrency != null) {
-      getExchangeRate({ primaryCurrency, secondaryCurrency })
-        .then((res) => res.json())
-        .then((resJson) => setRate(resJson.conversion_rate));
+      getExchangeRate({ primaryCurrency, secondaryCurrency }).then((resJson) =>
+        setRate(resJson.conversion_rate)
+      );
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
