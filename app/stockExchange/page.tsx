@@ -31,8 +31,7 @@ type MuiObject = {
 const ExpandMore = styled((props: MuiObject) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  // transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
+})(({ theme }) => ({
   marginLeft: "auto",
   transition: theme.transitions.create("transform", {
     duration: theme.transitions.duration.shortest,
@@ -203,6 +202,7 @@ export default function StockEchange() {
               </Box>
             </Box>
             <CardActions disableSpacing>
+              {/* Error here needs fixing, issue with MUI component prop support */}
               <ExpandMore
                 expand={expanded}
                 onClick={handleExpandClick}
