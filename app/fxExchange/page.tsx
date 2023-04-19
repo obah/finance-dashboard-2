@@ -1,8 +1,8 @@
 import AssetRow from "@/lib/assetRow";
 import { getCurrencyList, getExchangeRate } from "@/lib/apiCalls";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
-import { Typography } from "@mui/material";
+import { Typography, SelectChangeEvent } from "@mui/material";
 
 export default function FxExhange() {
   const [amount, setAmount] = useState<string>("1");
@@ -60,5 +60,40 @@ export default function FxExhange() {
     setAmountFromPrimary(false);
   };
 
-  return <main></main>;
+  return (
+    <Grid2 container spacing={2}>
+      <Grid2
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Typography variant="h4" gutterBottom>
+          Currency Exchange
+        </Typography>
+        <Typography variant="h6" gutterBottom>
+          Convert
+        </Typography>
+        <AssetRow
+          currencyOptions={currencyOptions}
+          selectedCurrency={primaryCurrency}
+          onChangeCurrency={(e: SelectChangeEvent) =>
+            setPrimaryCurrency(e.target.value)
+          }
+          amount={primaryAmount}
+          onChangeAmount={handlePrimaryAmountChange}
+        />
+        <div>-</div>
+        <AssetRow
+          currencyOptions={currencyOptions}
+          selectedCurrency={secondaryCurrency}
+          onChangeCurrency={(e: SelectChangeEvent) =>
+            setSecondaryCurrency(e.target.value)
+          }
+          amount={secondaryAmount}
+          onChangeAmount={handleSecondaryAmountChange}
+        />
+      </Grid2>
+    </Grid2>
+  );
 }
